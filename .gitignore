@@ -23,10 +23,10 @@ raw/
 sourcedata/
 
 # --- Pipeline output trees (if anyone points the project root at the repo) --
-bids/
-derivatives/
-work/
-tmp_dcm2bids/
+/bids/
+/derivatives/
+/work/
+**/tmp_dcm2bids/
 logs/
 *.log
 
