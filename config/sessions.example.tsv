@@ -1,0 +1,3 @@
+study_id	bids_label	session_folder	protocol	group	notes
+PILOT	01	YYYYMMDD_xxxxxx_ACHI_PILOT	pilot		pilot naming (rfMRI_..._SBRef)
+ACHI_2026_001	ACHI001	YYYYMMDD_xxxxxx_ACHI_2026_001	v1		bids_label may be left empty: derived from study_id

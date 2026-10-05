@@ -1,0 +1,83 @@
+# =====================================================================
+# NEVER COMMIT DATA. This repo holds code and config only.
+# Raw DICOMs, NIfTI, derivatives, sidecars and anything that identifies
+# a participant stay on the server (/data/benlab/datalake/...).
+# =====================================================================
+
+# --- Imaging data ------------------------------------------------------
+*.dcm
+*.DCM
+*.ima
+*.IMA
+*.nii
+*.nii.gz
+*.mgz
+*.gii
+*.bval
+*.bvec
+*.tsv.gz
+# Siemens DICOM folders often have extension-less files: keep raw data dirs out
+dicom/
+dicoms/
+raw/
+sourcedata/
+
+# --- Pipeline output trees (if anyone points the project root at the repo) --
+bids/
+derivatives/
+work/
+tmp_dcm2bids/
+logs/
+*.log
+
+# --- Containers, templates, licenses ------------------------------------
+*.sif
+*.simg
+*.img
+containers/templateflow/
+license.txt
+**/license.txt
+
+# --- Sidecars and per-participant tables (contain site / PHI info) ------
+# JSON is ignored everywhere except the hand-written config files.
+*.json
+!config/**/*.json
+!tests/fixtures/**/*.json
+config/sessions.tsv
+config/pipeline.local.yaml
+participants.tsv
+*.csv
+!tests/fixtures/**/*.csv
+behav/
+behavior/
+behaviour/
+
+# --- MATLAB / SPM outputs -----------------------------------------------
+*.mat
+!tests/fixtures/**/*.mat
+SPM.mat
+*.ps
+*.asv
+*.mlx
+
+# --- Python -------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# --- Editors / OS -------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# detached-run console output
+nohup_*.out
+config/hosts.txt

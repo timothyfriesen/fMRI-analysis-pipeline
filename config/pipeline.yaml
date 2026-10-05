@@ -1,0 +1,69 @@
+# ACHI fMRI pipeline: the ONE config file for paths and settings.
+# Scripts never hard-code paths; everything comes from here.
+#
+# Per-machine overrides (e.g. running on your laptop) go in
+# config/pipeline.local.yaml (gitignored), which is deep-merged on top of this
+# file. Point at another file with `--config` or the ACHI_CONFIG env variable.
+
+study:
+  name: ACHI
+  # How a study ID becomes a BIDS label when sessions.tsv leaves bids_label empty:
+  # ACHI_2026_001 -> ACHI001 (prefix + subject number; the year is dropped).
+  label_regex: '^(?P<prefix>[A-Za-z]+)_\d{4}_(?P<num>\d+)$'
+  label_format: '{prefix}{num}'
+
+paths:
+  # {name} references another key in this section.
+  dicom_root:   /data/benlab/datalake/afch/achi/fmri
+  project_root: /data/benlab/datalake/afch/achi/fmriprep
+  bids:         '{project_root}/bids'
+  derivatives:  '{project_root}/derivatives'
+  fmriprep_out: '{derivatives}/fmriprep'
+  pipeline_out: '{derivatives}/achi'        # QC, SPM-ready files, GLMs, ROIs, figures
+  work:         '{project_root}/work'
+  containers:   '{project_root}/containers'
+  templateflow: '{containers}/templateflow'
+  fs_license:   '{project_root}/license.txt'
+  logs:         '{project_root}/logs'
+  sessions_table: config/sessions.tsv       # relative paths resolve against the repo root
+
+compute:
+  # Shared machine: keep these modest. Stages refuse to start on a host that is
+  # not listed here (empty list = any host). Use bin/survey_hosts.sh to choose.
+  allowed_hosts: []
+  n_threads: 8          # fMRIPrep --nthreads
+  omp_threads: 4        # fMRIPrep --omp-nthreads
+  mem_gb: 32            # fMRIPrep --mem
+  nice: 10              # run heavy jobs at lower CPU priority
+
+container:
+  runtime: auto         # auto | apptainer | singularity
+
+software:
+  fmriprep_version: 25.2.6
+  dcm2bids_version: 3.2.0
+
+acquisition:
+  tr: 1.5
+  te: 0.037
+  pe_dir_bold: j-       # AP
+  n_slices: 72
+  runs_per_task: 2
+  tasks:                # task -> expected volumes per BOLD run
+    quest: 182
+    traintest1: 150
+    traintest2: 150
+    traintest3: 150
+    mist1: 86
+    mist2: 86
+
+qc:
+  fd_spike_mm: 0.5          # FD threshold for counting "bad" volumes
+  max_mean_fd_mm: 0.2       # flag run if mean FD above this
+  max_fd_mm: 3.0            # flag run if any FD above this
+  max_pct_spikes: 20        # flag run if > this % of volumes have FD > fd_spike_mm
+  require_sdc: true         # flag run if fMRIPrep reports SDC "None"
+
+spm:
+  fwhm_mm: [6, 6, 6]
+  n_acompcor: 5
