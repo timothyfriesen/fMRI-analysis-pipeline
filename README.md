@@ -7,7 +7,7 @@ and controls). Prisma 3T, CMRR multiband EPI, TR 1.5 s, 2 mm, 72 slices, AP.
 | Stage | What it does | Runs on | Status |
 |---|---|---|---|
 | 00 | Environment check, host survey, config | server | ✅ |
-| 01 | Series check → dcm2bids → BIDS validation | server | planned |
+| 01 | Series check → dcm2bids → BIDS validation | server | ✅ |
 | 02 | fMRIPrep 25.2.6 (Apptainer/Singularity) + SDC check | server | planned |
 | 03 | QC table (FD, spikes, SDC, non-steady-state) with flags | server | planned |
 | 04 | Unzip MNI BOLD, smooth 6 mm, confound regressors | server (SPM container) or laptop | planned |
@@ -129,6 +129,42 @@ bin/run_stage.sh --help                       # list stages and options
 * **Stops loudly**: any check that fails (wrong series, missing field map, bad
   `IntendedFor`, …) stops the stage with an explanation; later stages never run on
   unchecked input.
+
+## Stage 01: DICOM → BIDS
+
+```bash
+bin/run_stage.sh 01 --sub ACHI001 --dry-run   # inspect + series check only
+bin/run_stage.sh 01 --sub ACHI001             # check, convert, validate
+```
+
+1. **Series check.** `dcm2bids_helper` reads the session; every series is compared
+   with `config/expected_series/<protocol>.tsv` (`v1` for real sessions, `pilot`
+   for the pilot's `rfMRI_…_SBRef` naming): series number, description, number of
+   volumes and phase-encoding direction. A repeated, skipped, aborted or renamed scan
+   **stops the stage before anything is converted** and prints a table like
+
+   ```
+   series  expected                     status    found
+        8  bold task-traintest1 run-1   ok        'fMRI_Task_traintest1_run-1' (150 vol, PE j-)
+       10  bold task-mist1 run-1        MISMATCH  'fMRI_Task_traintest1_run-1' (150 vol, PE j-)
+   ```
+   Decide by hand which series to use, then convert that session separately.
+2. **Conversion.** The dcm2bids config is *generated* from the same table, so the
+   check and the conversion cannot disagree. Each entry matches SeriesNumber **and**
+   description. Series 5 (quest run-1 SBRef) becomes `fmap/…_dir-AP_epi`, series 3
+   `fmap/…_dir-PA_epi`; both list all 12 BOLD runs in `IntendedFor`.
+   `python -m achi dcm2bids-config v1` prints the generated config, so you can compare it
+   with the config you used before.
+3. **Validation.** 1 T1w, 12 BOLD, 11 SBRef (none for quest run-1), exactly one
+   `dir-AP` and one `dir-PA` epi; IntendedFor entries use `/` and point to existing
+   files covering every BOLD run; TaskName, RepetitionTime = 1.5, 72 SliceTiming
+   values all in [0, TR); PhaseEncodingDirection j- for BOLD/AP and j for PA;
+   TotalReadoutTime present; volume counts match the task.
+
+Rerunning skips a subject that is already converted from the same DICOMs (the checks
+still run). `--force` reconverts and moves the old folder to `work/bids_replaced/`.
+Any change to BIDS inputs means fMRIPrep's work directory must be cleared; stage 02
+will do this automatically.
 
 ## Tests
 

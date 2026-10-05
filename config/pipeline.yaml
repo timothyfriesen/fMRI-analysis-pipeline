@@ -57,6 +57,18 @@ acquisition:
     mist1: 86
     mist2: 86
 
+bids:
+  # Expected series table per protocol (sessions.tsv column `protocol`).
+  expected_series:
+    v1: config/expected_series/v1.tsv
+    pilot: config/expected_series/pilot.tsv
+  # Any unlisted series whose description matches this is treated as a repeated
+  # or extra task scan, and stage 01 stops.
+  task_series_regex: '^r?fMRI_Task_'
+  # IntendedFor style written by dcm2bids: "relative" (func/sub-..._bold.nii.gz)
+  # or "URI" (bids::sub-.../func/...). Both are valid for fMRIPrep 25.
+  intendedfor_style: relative
+
 qc:
   fd_spike_mm: 0.5          # FD threshold for counting "bad" volumes
   max_mean_fd_mm: 0.2       # flag run if mean FD above this

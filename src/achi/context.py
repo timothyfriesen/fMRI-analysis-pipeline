@@ -103,15 +103,23 @@ class RunContext:
         self.stamp_file.write_text(json.dumps(payload, indent=2))
 
     # ---- side effects that respect --dry-run -----------------------------
-    def run_cmd(self, cmd: Sequence[str], **kwargs) -> subprocess.CompletedProcess | None:
-        """Run an external command, streaming its output into the log."""
+    def run_cmd(self, cmd: Sequence[str], always: bool = False,
+                **kwargs) -> subprocess.CompletedProcess | None:
+        """Run an external command, streaming its output into the log.
+
+        always=True runs it even with --dry-run: only for read-only inspection
+        commands whose output goes to a temporary directory.
+        """
         line = shlex.join(str(c) for c in cmd)
-        if self.dry_run:
+        if self.dry_run and not always:
             self.logger.info("[dry-run] would run: %s", line)
             return None
         self.logger.info("running: %s", line)
-        proc = subprocess.Popen([str(c) for c in cmd], stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, text=True, **kwargs)
+        try:
+            proc = subprocess.Popen([str(c) for c in cmd], stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, text=True, **kwargs)
+        except FileNotFoundError:
+            raise StageError(f"program not found: {cmd[0]} (is the conda env activated?)") from None
         assert proc.stdout is not None
         for out_line in proc.stdout:
             self.logger.debug("  | %s", out_line.rstrip())

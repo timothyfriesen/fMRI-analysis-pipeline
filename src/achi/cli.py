@@ -4,6 +4,7 @@
     achi stages
     achi check-config
     achi series-table /path/to/dicom/session   (de-identified series list)
+    achi dcm2bids-config v1                   (config generated from the expected table)
 """
 from __future__ import annotations
 
@@ -51,6 +52,21 @@ def _cmd_series_table(args) -> int:
     if not folder.is_absolute() and not folder.exists():
         folder = load_config(args.config).paths["dicom_root"] / folder
     sys.stdout.write(to_tsv(scan_session(folder)))
+    return 0
+
+
+def _cmd_dcm2bids_config(args) -> int:
+    import json
+
+    from .bids.dcm2bids_config import build_config
+    from .bids.series import load_expected
+    from .config import REPO_ROOT
+    cfg = load_config(args.config)
+    table = Path(cfg["bids"]["expected_series"][args.protocol])
+    table = table if table.is_absolute() else REPO_ROOT / table
+    expected = load_expected(table, cfg["acquisition"]["tasks"])
+    print(json.dumps(build_config(expected, cfg["bids"].get("intendedfor_style", "relative")),
+                     indent=2))
     return 0
 
 
@@ -104,6 +120,9 @@ def build_parser() -> argparse.ArgumentParser:
     t = sub.add_parser("series-table", help="de-identified list of series in a DICOM folder")
     t.add_argument("folder", help="session folder (absolute, or relative to paths.dicom_root)")
     t.set_defaults(func=_cmd_series_table)
+    c = sub.add_parser("dcm2bids-config", help="print the dcm2bids config generated for a protocol")
+    c.add_argument("protocol", nargs="?", default="v1", help="v1 or pilot")
+    c.set_defaults(func=_cmd_dcm2bids_config)
     return p
 
 

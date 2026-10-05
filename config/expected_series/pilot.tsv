@@ -1,0 +1,38 @@
+# Expected series for the pilot (protocol pilot): rfMRI_ prefix, SBRef has an _SBRef suffix.
+# ASSUMPTION: same series numbering as v1. Check against `achi series-table`.
+# role: anat_T1w | fmap_PA | fmap_AP | sbref | bold | ignore
+# description: regular expression the SeriesDescription must match (full match)
+# n_vols: volumes in the converted NIfTI (must agree with config/pipeline.yaml acquisition.tasks)
+# pe_dir: expected PhaseEncodingDirection from the dcm2niix sidecar (blank = not checked)
+# Series not listed here are ignored, EXCEPT any whose description looks like a task
+# fMRI series: that means a scan was repeated/added and the stage stops.
+series	role	task	run	description	n_vols	pe_dir
+2	anat_T1w			^anat_T1w_mprage.*	1	
+3	fmap_PA			.*	1	j
+4	ignore			.*		
+5	fmap_AP	quest	1	^rfMRI_Task_quest_run-1_SBRef$	1	j-
+6	bold	quest	1	^rfMRI_Task_quest_run-1$	182	j-
+7	sbref	traintest1	1	^rfMRI_Task_traintest1_run-1_SBRef$	1	j-
+8	bold	traintest1	1	^rfMRI_Task_traintest1_run-1$	150	j-
+9	sbref	mist1	1	^rfMRI_Task_mist1_run-1_SBRef$	1	j-
+10	bold	mist1	1	^rfMRI_Task_mist1_run-1$	86	j-
+11	sbref	mist2	1	^rfMRI_Task_mist2_run-1_SBRef$	1	j-
+12	bold	mist2	1	^rfMRI_Task_mist2_run-1$	86	j-
+13	sbref	traintest2	1	^rfMRI_Task_traintest2_run-1_SBRef$	1	j-
+14	bold	traintest2	1	^rfMRI_Task_traintest2_run-1$	150	j-
+15	sbref	traintest3	1	^rfMRI_Task_traintest3_run-1_SBRef$	1	j-
+16	bold	traintest3	1	^rfMRI_Task_traintest3_run-1$	150	j-
+17	sbref	quest	2	^rfMRI_Task_quest_run-2_SBRef$	1	j-
+18	bold	quest	2	^rfMRI_Task_quest_run-2$	182	j-
+19	sbref	traintest1	2	^rfMRI_Task_traintest1_run-2_SBRef$	1	j-
+20	bold	traintest1	2	^rfMRI_Task_traintest1_run-2$	150	j-
+21	sbref	mist1	2	^rfMRI_Task_mist1_run-2_SBRef$	1	j-
+22	bold	mist1	2	^rfMRI_Task_mist1_run-2$	86	j-
+23	sbref	mist2	2	^rfMRI_Task_mist2_run-2_SBRef$	1	j-
+24	bold	mist2	2	^rfMRI_Task_mist2_run-2$	86	j-
+25	sbref	traintest2	2	^rfMRI_Task_traintest2_run-2_SBRef$	1	j-
+26	bold	traintest2	2	^rfMRI_Task_traintest2_run-2$	150	j-
+27	sbref	traintest3	2	^rfMRI_Task_traintest3_run-2_SBRef$	1	j-
+28	bold	traintest3	2	^rfMRI_Task_traintest3_run-2$	150	j-
+29	ignore			.*		
+30	ignore			.*		

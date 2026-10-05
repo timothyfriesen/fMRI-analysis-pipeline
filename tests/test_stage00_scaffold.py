@@ -130,7 +130,7 @@ def test_series_table_counts_and_hides_phi(tmp_path):
     assert [r.series for r in rows] == list(range(1, 31))
     by = {r.series: r for r in rows}
     assert by[5].description == by[6].description == "fMRI_Task_quest_run-1"
-    assert (by[5].n_files, by[6].n_files) == (1, 182 // 50)
+    assert (by[5].n_files, by[6].n_files) == (2, 2 * (182 // 50))  # 2 slices per volume
     assert by[6].tr_ms == "1500" and by[6].te_ms == "37"
     tsv = to_tsv(rows)
     for secret in ("SECRET", "19990101", "20260527"):
@@ -141,7 +141,7 @@ def test_series_table_splits_repeated_series_number(tmp_path):
     # Same series number, different SeriesInstanceUID (e.g. a re-exported series)
     write_series(tmp_path / "s", 6, "fMRI_Task_quest_run-1", 2)
     write_series(tmp_path / "s" / "again", 6, "fMRI_Task_quest_run-1", 3)
-    assert sorted(r.n_files for r in scan_session(tmp_path / "s")) == [2, 3]
+    assert sorted(r.n_files for r in scan_session(tmp_path / "s")) == [4, 6]
 
 
 # ---- CLI ------------------------------------------------------------------------
